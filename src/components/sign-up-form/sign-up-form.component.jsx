@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { UserContext } from '../../contexts/user.context';
 
 import {
 	createAuthUserWithEmailAndPassword,
@@ -20,6 +21,8 @@ const SignUpForm = () => {
 	const [formFields, setFormFields] = useState(defaultFormFields);
 	const { displayName, email, password, confirmPassword } = formFields;
 
+	const { setCurrentUser } = useContext(UserContext);
+
 	const resetFormFields = () => {
 		setFormFields(defaultFormFields);
 	};
@@ -37,6 +40,8 @@ const SignUpForm = () => {
 				email,
 				password
 			);
+
+			setCurrentUser(user);
 
 			// user will not have display name so we have to provide it by ourselves
 			// in goggle sign in, google already had the display name
