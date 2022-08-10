@@ -9,7 +9,16 @@ import {
 	signOut,
 	onAuthStateChanged,
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+	getFirestore,
+	doc,
+	getDoc,
+	setDoc,
+	collection,
+	writeBatch,
+	query,
+	getDocs,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyAMdcB38N76a53yc4ZuCuGwBqQPTjfva-o',
@@ -38,8 +47,47 @@ export const signInWithGooglePopup = () =>
 // this singleton object directs points to our db in console
 export const db = getFirestore();
 
+export const addCollectionAndDocuments = async (
+	collectionKey,
+	objectsToAdd
+) => {
+	const collectionRef = collection(db, collectionKey);
+
+	// we need a batch to store all unit of works (write, deleted, sets etc) to make a successfull transaction on collectionRef
+	// Only when we're ready to fire off a btach, an actual transaction begin
+	const batch = writeBatch(db);
+
+	objectsToAdd.forEach((object) => {
+		const docRef = doc(collectionRef, object.title.toLowerCase());
+		batch.set(docRef, object);
+	});
+
+	await batch.commit();
+	console.log('done');
+};
+
+export const getCategoriesAndDocuments = async () => {
+	const collectionRef = collection(db, 'categories');
+
+	const q = query(collectionRef);
+
+	// Note: getDocs is different from getDoc
+	const querySnapshot = await getDocs(q); // getDocs fetch documents (hats, jackets, sneakers etc)
+
+	const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+		// querySnapshot.docs => array of documents
+		const { title, items } = docSnapshot.data();
+		acc[title.toLowerCase()] = items;
+		return acc;
+	}, {});
+
+	return categoryMap;
+};
+
 export const createUserDocumentFromAuth = async (userAuth, additionalInfo) => {
 	if (!userAuth) return;
+
+	// Whenever we try to find something in db, firebase creates one reference for us even if its not populated
 	const userDocRef = doc(db, 'users', userAuth.uid); // doc methods allow us to retreive doc from a collection in db
 	// it receives (db, collection name, unique id of document)
 	// -> since we are storing users thus we are using user's uid as a uinique id to for doc
