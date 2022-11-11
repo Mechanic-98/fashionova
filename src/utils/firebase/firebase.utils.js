@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import {
 	getAuth,
-	// signInWithRedirect,
+	signInWithRedirect,
 	signInWithPopup,
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
@@ -29,7 +29,7 @@ const firebaseConfig = {
 	appId: '1:958433104848:web:41f276349633f2b88f9fd5',
 };
 
-// const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 
 const googleProvider = new GoogleAuthProvider(); // GoogleAuthProvider is a class
 // we have other class as well like, facebookAuthProvider, githubAuthProvider etc
